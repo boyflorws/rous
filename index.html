@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¿Aceptas ir por alitas? 🍗</title>
+  <style>
+    :root{
+      --bg1:#0f172a; /* slate-900 */
+      --bg2:#111827; /* gray-900 */
+      --card:#111827cc;
+      --text:#e5e7eb; /* gray-200 */
+      --accent:#22c55e; /* green-500 */
+      --accent-2:#ef4444; /* red-500 */
+      --btn:#1f2937; /* gray-800 */
+      --shadow:0 20px 50px -20px rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; height:100dvh; overflow:hidden;
+      display:grid; place-items:center;
+      background: radial-gradient(1200px 800px at 20% 10%, #1f2937, var(--bg1)),
+                  radial-gradient(1000px 600px at 80% 90%, #0b1220, var(--bg2));
+      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .card{
+      width:min(720px, 92vw); padding:28px; border-radius:24px;
+      background:linear-gradient(180deg, #0b1220aa, #0b1220aa), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 10 10" fill="none"><circle cx="1" cy="1" r="1" fill="%231e293b"/></svg>');
+      backdrop-filter: blur(8px);
+      box-shadow:var(--shadow);
+      position:relative; overflow:hidden;
+    }
+    .title{font-size:clamp(26px, 4vw, 40px); line-height:1.1; margin:4px 0 10px; font-weight:800}
+    .subtitle{opacity:.8; margin-top:0}
+    .emoji{font-size:clamp(30px, 6vw, 60px); filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));}
+
+    .arena{ position:relative; margin-top:22px; height:190px;
+      border:1px dashed #334155; border-radius:18px; padding:18px; overflow:hidden;
+      background:linear-gradient(180deg, rgba(148,163,184,0.05), rgba(148,163,184,0.03));
+    }
+
+    .buttons{ position:absolute; inset:0; display:grid; place-items:center;}
+    .stack{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; justify-content:center;}
+
+    button{
+      -webkit-tap-highlight-color:transparent;
+      border:0; border-radius:999px; padding:14px 22px; font-size:18px; font-weight:700; cursor:pointer;
+      background:var(--btn); color:var(--text); box-shadow:0 10px 20px rgba(0,0,0,.35);
+      transform:translateZ(0);
+      transition:transform .15s ease, box-shadow .2s ease, background .3s ease, opacity .2s;
+    }
+    button:active{ transform:scale(.98) }
+
+    .yes{ background:linear-gradient(180deg, #22c55e, #16a34a); color:#04120a; text-shadow:0 1px 0 #ffffff66; }
+    .yes:hover{ box-shadow:0 10px 30px rgba(34,197,94,.35) }
+
+    .no{ background:linear-gradient(180deg, #ef4444, #b91c1c); color:#fff; position:absolute; }
+
+    .hint{ margin-top:8px; font-size:14px; opacity:.7; text-align:center }
+
+    /* Modal */
+    dialog{ border:0; border-radius:20px; width:min(560px, 92vw); background:#0b1220; color:var(--text); box-shadow:var(--shadow); }
+    .dialog-inner{ padding:24px; }
+    .dialog-title{ font-size:24px; margin:0 0 6px; font-weight:800 }
+    .row{ display:flex; gap:12px; flex-wrap:wrap }
+    .row > *{ flex:1 1 160px }
+    input, select{
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid #334155; background:#0b1322; color:var(--text);
+      font-size:16px; outline:none; box-shadow:inset 0 1px 0 #ffffff0d;
+    }
+    .small{ font-size:12px; opacity:.7; margin-top:8px }
+    .cta{ margin-top:14px; display:flex; gap:10px; justify-content:flex-end }
+    .cta button{ padding:12px 16px }
+
+    /* Confeti */
+    .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden }
+    .confetti i{ position:absolute; width:10px; height:16px; opacity:0; will-change:transform, opacity }
+
+    /* Floating decor */
+    .floaters span{ position:absolute; opacity:.08; font-size:clamp(24px, 6vw, 44px); animation: float 12s ease-in-out infinite }
+    .floaters span:nth-child(odd){ animation-duration:16s }
+    @keyframes float{ 0%{ transform:translateY(0) } 50%{ transform:translateY(-12px) } 100%{ transform:translateY(0) } }
+
+    .footer{ margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; opacity:.8 }
+    .kbd{ font: 600 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#0f172a; padding:4px 8px; border-radius:8px; border:1px solid #1f2937 }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="floaters" aria-hidden="true"></div>
+    <div class="emoji" aria-hidden="true">🍗</div>
+    <h1 class="title">¿Aceptas ir a comer alitas conmigo?</h1>
+    <p class="subtitle">Prometo salsas ilimitadas y conversación de calidad 😌</p>
+
+    <div class="arena" id="arena">
+      <div class="buttons">
+        <div class="stack">
+          <button class="yes" id="yesBtn">Sí, vamos 🍟🍗</button>
+          <button class="no" id="noBtn">No... ehm 😅</button>
+        </div>
+      </div>
+      <p class="hint">Tip: intenta atrapar el botón rojo (si puedes 😉)</p>
+    </div>
+
+    <div class="footer">
+      <div>Atajos: <span class="kbd">S</span> = Sí, <span class="kbd">N</span> = No (spoiler: huye)</div>
+      <div id="tries" class="small">Intentos de decir "No": 0</div>
+    </div>
+  </div>
+
+  <dialog id="successDlg">
+    <div class="dialog-inner">
+      <h3 class="dialog-title">¡Hecho! 🥳 Nos vamos por alitas</h3>
+      <p>Elige una fecha y hora para que quede <strong>oficial</strong>.</p>
+      <div class="row">
+        <input type="date" id="date" />
+        <input type="time" id="time" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="salsa">
+          <option value="Clásicas">Clásicas</option>
+          <option value="BBQ">BBQ</option>
+          <option value="Ahumadas">Ahumadas</option>
+          <option value="Picantitas">Picantitas 🌶️</option>
+        </select>
+        <input id="lugar" placeholder="Lugar (p. ej., WingSpot del centro)" />
+      </div>
+      <div class="cta">
+        <button id="copyBtn">Copiar detalle</button>
+        <button class="yes" id="closeBtn">Listo</button>
+      </div>
+      <p class="small" id="copyMsg" role="status" aria-live="polite"></p>
+    </div>
+  </dialog>
+
+  <div class="confetti" id="confetti"></div>
+
+<script>
+(function(){
+  const arena = document.getElementById('arena');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const triesEl = document.getElementById('tries');
+  const dlg = document.getElementById('successDlg');
+  const confettiRoot = document.getElementById('confetti');
+  const card = document.getElementById('card');
+
+  // Floating decor 🍗✨
+  const floaters = document.querySelector('.floaters');
+  const pieces = 10;
+  for(let i=0;i<pieces;i++){
+    const sp = document.createElement('span');
+    sp.textContent = Math.random() > .5 ? '🍗' : '✨';
+    sp.style.left = Math.random()*90 + '%';
+    sp.style.top = (Math.random()*60+10) + 'px';
+    sp.style.animationDelay = (Math.random()*6) + 's';
+    floaters.appendChild(sp);
+  }
+
+  // Position NO button initially at a random spot
+  function placeNoRandom(){
+    const bounds = arena.getBoundingClientRect();
+    const nb = noBtn.getBoundingClientRect();
+    const pad = 8;
+    const x = Math.random() * (bounds.width - nb.width - pad*2) + pad;
+    const y = Math.random() * (bounds.height - nb.height - pad*2) + pad;
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+
+  // Make NO flee when cursor is near
+  let tries = 0;
+  const messages = [
+    '¿Segur@?', 'Piénsalo 🙃', 'Las alitas no muerden (mucho)', 'Última oportunidad...', 'Ok pero estás perdiendo', '¡Corre botón, corre!'
+  ];
+
+  function flee(mx, my){
+    const a = arena.getBoundingClientRect();
+    const nb = noBtn.getBoundingClientRect();
+    const cx = nb.left + nb.width/2;
+    const cy = nb.top + nb.height/2;
+    const dx = cx - mx;
+    const dy = cy - my;
+    const dist = Math.hypot(dx, dy);
+    const danger = 140; // px
+    if(dist < danger){
+      // New target away from cursor
+      const angle = Math.atan2(dy, dx) + (Math.random()-0.5)*1.2;
+      const step = 160 + Math.random()*140;
+      let nx = (nb.left - a.left) + Math.cos(angle)*step;
+      let ny = (nb.top - a.top) + Math.sin(angle)*step;
+      // clamp inside arena
+      nx = Math.max(6, Math.min(nx, a.width - nb.width - 6));
+      ny = Math.max(6, Math.min(ny, a.height - nb.height - 6));
+      noBtn.style.transition = 'transform .1s, left .12s ease, top .12s ease';
+      noBtn.style.left = nx + 'px';
+      noBtn.style.top  = ny + 'px';
+    }
+  }
+
+  arena.addEventListener('mousemove', (e)=>{
+    flee(e.clientX, e.clientY);
+  });
+  // Touch: move randomly on tap
+  noBtn.addEventListener('touchstart', (e)=>{
+    e.preventDefault(); placeNoRandom(); bumpTries();
+  }, {passive:false});
+
+  // Clicking NO just increments tries & taunts
+  function bumpTries(){
+    tries++; triesEl.textContent = `Intentos de decir "No": ${tries}`;
+    noBtn.textContent = messages[Math.min(tries, messages.length-1)];
+  }
+  noBtn.addEventListener('click', bumpTries);
+
+  // YES flow
+  yesBtn.addEventListener('click', celebrate);
+  document.addEventListener('keydown', (e)=>{
+    if(e.key.toLowerCase()==='s') celebrate();
+    if(e.key.toLowerCase()==='n'){ placeNoRandom(); bumpTries(); }
+    if(e.key==='Enter') celebrate();
+  });
+
+  function celebrate(){
+    burstConfetti();
+    pulseCard();
+    if(!dlg.open){ dlg.showModal(); autoFillDateTime(); }
+  }
+
+  function pulseCard(){
+    card.animate([
+      { transform:'scale(1)' },
+      { transform:'scale(1.02)' },
+      { transform:'scale(1)' }
+    ], { duration:300, easing:'ease-out' });
+  }
+
+  // Minimal confetti (no libs)
+  const COLORS = ['#f43f5e','#fb923c','#fbbf24','#22c55e','#06b6d4','#8b5cf6'];
+  function burstConfetti(){
+    const n = 80;
+    const { innerWidth:W, innerHeight:H } = window;
+    for(let i=0;i<n;i++){
+      const el = document.createElement('i');
+      el.style.background = COLORS[i % COLORS.length];
+      el.style.left = (Math.random()*W) + 'px';
+      const rot = (Math.random()*360)|0;
+      const fall = 800 + Math.random()*900;
+      const delay = Math.random()*120;
+      el.style.opacity = 1;
+      el.animate([
+        { transform:`translateY(-10px) rotate(${rot}deg)`, opacity:1 },
+        { transform:`translateY(${H+40}px) rotate(${rot+180}deg)`, opacity:0.9 }
+      ], { duration: fall, delay, easing:'cubic-bezier(.2,.6,.2,1)' });
+      confettiRoot.appendChild(el);
+      setTimeout(()=> el.remove(), fall+delay+50);
+    }
+  }
+
+  // Dialog actions
+  const copyBtn = document.getElementById('copyBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const copyMsg = document.getElementById('copyMsg');
+  const dateEl = document.getElementById('date');
+  const timeEl = document.getElementById('time');
+  const salsaEl = document.getElementById('salsa');
+  const lugarEl = document.getElementById('lugar');
+
+  function autoFillDateTime(){
+    const now = new Date();
+    // Sugiere hoy+2 horas redondeado
+    now.setHours(now.getHours()+2, 0, 0, 0);
+    const d = new Date(now);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    dateEl.value = `${yyyy}-${mm}-${dd}`;
+    timeEl.value = `${hh}:${mi}`;
+  }
+
+  copyBtn.addEventListener('click', async ()=>{
+    const text = `¡Listo! Plan de alitas:\n\nFecha: ${dateEl.value || 'por definir'}\nHora: ${timeEl.value || 'por definir'}\nSalsa favorita: ${salsaEl.value}\nLugar: ${lugarEl.value || 'a escoger'}\n\nConfirmado por ambos ✅`;
+    try{
+      await navigator.clipboard.writeText(text);
+      copyMsg.textContent = 'Detalles copiados al portapapeles.';
+    }catch(err){
+      copyMsg.textContent = 'No pude copiar automáticamente. Selecciona y copia manualmente: \n' + text;
+    }
+  });
+  closeBtn.addEventListener('click', ()=> dlg.close());
+
+  // Start state
+  // Move NO button away from the YES on first layout paint
+  requestAnimationFrame(()=>{
+    // make NO absolute respect to arena
+    noBtn.style.position='absolute';
+    placeNoRandom();
+  });
+
+  // Keep NO inside when window resizes
+  window.addEventListener('resize', placeNoRandom);
+})();
+</script>
+</body>
+</html>
